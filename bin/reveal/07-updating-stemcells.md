@@ -1,0 +1,1 @@
+../../bosh-lite/exercises/07-updating-stemcells/README.md

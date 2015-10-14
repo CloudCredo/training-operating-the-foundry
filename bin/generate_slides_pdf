@@ -1,0 +1,19 @@
+#!/bin/bash -e
+
+[ -z "$DEBUG" ] || set -x
+
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+npm list -g reveal-md 1>/dev/null 2>&1 || npm install -g reveal-md@0.0.22
+npm list -g phantomjs 1>/dev/null 2>&1 || npm install -g phantomjs@1.9.18
+
+(
+  cd $SCRIPT_DIR/reveal
+  find . -name "*.md" -exec reveal-md {} --theme black-customised --print \;
+
+  echo "Combining section pdfs into presentation-slides.pdf"
+  "/System/Library/Automator/Combine PDF Pages.action/Contents/Resources/join.py" -o ../../presentation-slides.pdf *.pdf
+
+  echo "Removing section pdfs"
+  rm *.pdf
+)

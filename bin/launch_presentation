@@ -1,0 +1,15 @@
+#!/bin/bash -e
+
+[ -z "$DEBUG" ] || set -x
+
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+
+npm list -g reveal-md 1>/dev/null 2>&1 || npm install -g reveal-md@0.0.22
+
+(
+	cd $SCRIPT_DIR/reveal
+	reveal-md . --theme black-customised
+)
+
+

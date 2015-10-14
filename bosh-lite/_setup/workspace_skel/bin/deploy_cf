@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+bosh deployment /vagrant/tmp/cf-deployment-215.yml
+bosh -n deploy
+bosh vm resurrection disable
+
+echo "=-=-=-=-=-=-=-=-=-=-=-=-=-="
+echo "  Cloud Foundry deployed!  "
+echo "=-=-=-=-=-=-=-=-=-=-=-=-=-="

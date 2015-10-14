@@ -1,0 +1,1 @@
+../../bosh-lite/exercises/06-upgrade-release/README.md

@@ -1,0 +1,56 @@
+*.gem
+*.rbc
+/.config
+/coverage/
+/InstalledFiles
+/pkg/
+/spec/reports/
+/test/tmp/
+/test/version_tmp/
+/tmp/
+
+## Specific to RubyMotion:
+.dat*
+.repl_history
+build/
+
+## Documentation cache and generated files:
+/.yardoc/
+/_yardoc/
+/doc/
+/rdoc/
+
+## Environment normalisation:
+/.bundle/
+/lib/bundler/man/
+
+# for a library or gem, you might want to ignore these files since the code is
+# intended to run in multiple environments; otherwise, check them in:
+# Gemfile.lock
+# .ruby-version
+# .ruby-gemset
+
+# unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
+.rvmrc
+
+#RevealMD
+node_modules
+
+.vagrant/
+workspace/
+*.tfstate*
+
+#assets
+*.tgz
+*.box
+*.dmg
+*.msi
+*.exe
+_installs/*.zip
+
+# exercise artifacts
+bosh-lite/tmp/compiled_package_cache
+exercises/05-scaling-cf/cf-deployment.yml
+exercises/06-upgrade-release/cf-redis-deployment.yml
+exercises/07-updating-stemcells/cf-redis-deployment.yml
+exercises/08-monitoring/logsearch-deployment.yml

@@ -1,0 +1,238 @@
+#!/bin/bash
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+#set -x
+set -e
+
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
+
+if [ ! -f /root/.apt-get_update-last-ran ]; then
+  apt-get update 
+  echo $(date) >> /root/.apt-get_update-last-ran 
+fi
+
+#
+# system: apparmor
+# Fixes: set apparmor profile docker-default: no such file or directory
+# http://stackoverflow.com/questions/23571900/docker-failing-to-load-apparmor-profile-upon-ubuntu-host-boot
+#
+if [ $(dpkg-query -W -f='${Status}' apparmor 2>/dev/null | grep -c "ok installed") -eq 0 ];
+then
+  apt-get install apparmor -y
+fi
+echo "apparmor: installed"
+
+#Fix
+if [ "`tail -1 /root/.profile`" = "mesg n" ]; then
+  echo 'Patching basebox to prevent future `stdin: is not a tty` errors...'
+  sed -i '$d' /root/.profile
+  cat << 'EOH' >> /root/.profile
+  if `tty -s`; then
+    mesg n
+  fi
+EOH
+fi
+
+#
+# system: curl
+#
+if [ ! -f /usr/bin/curl ]; then
+  echo "Installing curl"
+  apt-get install curl -y
+fi
+echo "curl: $(curl --version)" | head -n 1
+
+#
+# system: java
+#
+if ! (which java 1>/dev/null 2>&1) ; then
+  echo "Installing java..."
+
+  apt-get install -y openjdk-7-jre-headless
+fi
+echo "java: $(java -version 2>&1 | awk -F '\\"' '/version/ { print $2 }')"
+
+#
+# system: ruby 2.1.4p265 - replace Ubuntu's ruby 1.9 with the BOSH packaged version of ruby 
+#
+if [[ ! "$(ruby -v)" =~ "ruby 2.1." ]]; then
+  echo "Replacing Ubuntu's ruby 1.9 with the BOSH packaged version of ruby "
+  apt-get remove ruby -y
+  rm -rf /usr/local/bin/bosh
+  rm -rf /usr/local/bin/fission
+  rm -rf /usr/local/bin/aws-rb
+  rm -rf /usr/local/bin/blobstore_client_console
+  rm -rf /usr/local/bin/bosh-template 
+  rm -rf /usr/local/bin/fog
+  rm -rf /usr/local/bin/htmldiff 
+  rm -rf /usr/local/bin/httpclient 
+  rm -rf /usr/local/bin/minitar 
+  rm -rf /usr/local/bin/nokogiri 
+  rm -rf /usr/local/bin/rake 
+
+  echo "Ensuring Ruby 2.1 is in the path"
+  echo "export PATH=$PATH:/var/vcap/packages/ruby/bin" >> /etc/profile.d/ruby2.1.sh # for future sessions
+  PATH=$PATH:/var/vcap/packages/ruby/bin # for the rest of this script
+fi
+echo "ruby: $(ruby -v)" | head -n 1
+
+#
+# util: bundler
+#
+if ! (gem list bundler | grep bundler 1>/dev/null 2>&1) ; then
+  echo "Installing bundler"
+  gem install bundler -v 1.10.6 --no-ri --no-rdoc
+fi
+echo "bundler: $(bundler -v)" | head -n 1
+
+#
+# util: bosh_cli
+#
+if ! (gem list bosh_cli | grep bosh_cli 1>/dev/null 2>&1) ; then
+  echo "Installing bosh-cli"
+  gem install bosh_cli -v 1.3069.0 --no-ri --no-rdoc
+fi
+echo "bosh_cli: $(bosh -v)" | head -n 1
+
+#
+# util: patch bosh_cli to add string diffing of changesets
+#
+if ! (gem list diff-lcs | grep diff-lcs 1>/dev/null 2>&1) ; then
+  echo "Patching bosh_cli to add string diffing of changesets"
+
+  gem install diff-lcs --no-ri --no-rdoc
+  (
+    cd /var/vcap/packages/ruby/lib/ruby/gems/2.1.0/gems/bosh_cli-1.*
+    patch -p0 < $SCRIPT_DIR/patches/bosh_cli-string-diff.patch
+  )
+fi
+echo "bosh_cli: Patched to add string diffing of changesets"
+
+#
+# system: git
+#
+if [ ! -f /usr/bin/git ]; then
+  echo "Installing git"
+  apt-get install git-core -y
+fi
+echo "git: $(git --version)"
+
+#
+# system: bsdtar
+#
+if ! (which bsdtar 1>/dev/null 2>&1) ; then
+  echo "Installing bsdtar"
+  apt-get install bsdtar -y
+fi
+echo "bsdtar: $(bsdtar --version)"
+
+#
+# util: cloudfoundry spiff
+#
+if ! (which spiff 1>/dev/null 2>&1) ; then
+  echo "Installing spiff..."
+
+  curl -L https://github.com/cloudfoundry-incubator/spiff/releases/download/v1.0.7/spiff_linux_amd64.zip | bsdtar -xvf- -C /usr/bin
+  chmod +x /usr/bin/spiff
+
+fi
+echo "spiff: $(spiff --version)" | head -n 1
+
+#
+# util: vim
+#
+if ! (which vim 1>/dev/null 2>&1) ; then
+  echo "Installing vim..."
+
+  apt-get install -y vim
+fi
+echo "vim: $(vim --version)" | head -n 1
+
+#
+# util: tig
+#
+if ! (which tig 1>/dev/null 2>&1) ; then
+  echo "Installing tig..."
+
+  apt-get install -y tig
+fi
+echo "tig: $(tig --version)" | head -n 1
+
+#
+# util: jq 1.4
+#
+if [[ ! "$(jq --version)" =~ "jq-1.5" ]]; then
+  echo "Installing JQ 1.5..."
+
+  curl -L https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 > /usr/bin/jq
+  sudo chmod +x /usr/bin/jq
+fi
+echo "jq: $(jq --version 2>&1)" | head -n 1
+
+#
+# util: htop
+#
+if ! (which htop 1>/dev/null 2>&1) ; then
+  echo "Installing htop..."
+
+  apt-get install htop -y
+fi
+echo "htop: $(htop --version 2>&1)" | head -n 1
+
+#
+# util: tree
+#
+if ! (which tree 1>/dev/null 2>&1) ; then
+  echo "Installing tree..."
+
+  apt-get install tree -y
+fi
+echo "tree: $(tree --version 2>&1)" | head -n 1
+
+#
+# util: rake
+#
+if ! (which rake 1>/dev/null 2>&1) ; then
+  echo "Installing Rake..."
+
+  gem install rake --no-ri --no-rdoc
+fi
+echo "rake: $(rake --version 2>&1)" | head -n 1
+
+#
+# system: awscli
+#
+if ! (which aws 1>/dev/null 2>&1) ; then
+  echo "Installing aws cli..."
+
+  apt-get install -y python
+  curl "https://bootstrap.pypa.io/get-pip.py" -o "/root/get-pip.py"
+  python /root/get-pip.py
+  pip install --upgrade awscli httpie
+  bash -c "complete -C '/usr/bin/aws_completer' aws"
+fi
+echo "awscli: $(aws --version 2>&1)" | head -n 1
+echo "python: $(python --version 2>&1)" | head -n 1
+
+# Ensure all users have access to /tmp
+chmod 777 /tmp
+
+# Display "help" at login
+cp $SCRIPT_DIR/motd /etc/motd
+
+# Allow forwarding of all ENV variables via SSH
+sed -i 's/AcceptEnv\ LANG/AcceptEnv\ \*\ LANG/g' /etc/ssh/sshd_config
+service ssh reload
+
+# Forward traffic to the warden containers
+if [ $(dpkg-query -W -f='${Status}' iptables-persistent 2>/dev/null | grep -c "ok installed") -eq 0 ];
+then
+  echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
+  echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
+  apt-get install iptables-persistent -y
+fi       
+ 
+echo "====> Dependancies installed"

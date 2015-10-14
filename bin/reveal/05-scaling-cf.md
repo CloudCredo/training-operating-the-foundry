@@ -1,0 +1,1 @@
+../../bosh-lite/exercises/05-scaling-cf/README.md

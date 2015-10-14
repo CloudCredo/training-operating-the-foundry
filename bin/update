@@ -1,0 +1,12 @@
+#!/bin/bash -e
+
+[ -z "$DEBUG" ] || set -x
+
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+(
+	cd $SCRIPT_DIR/../
+
+	git pull
+	git submodule update --init --recursive --force
+)

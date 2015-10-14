@@ -1,0 +1,32 @@
+#!/bin/bash -e
+
+[ -z "$DEBUG" ] || set -x
+
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+set -e
+
+(
+
+#_installs
+cd $SCRIPT_DIR/../_installs
+
+[ -f "vagrant_1.7.4.dmg" ] || wget --content-disposition "https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.4.dmg"
+[ -f "vagrant_1.7.4.msi" ] || wget --content-disposition "https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.4.msi"
+[ -f "VirtualBox-5.0.4-102546-Win.exe" ] || wget --content-disposition "http://download.virtualbox.org/virtualbox/5.0.4/VirtualBox-5.0.4-102546-Win.exe"
+[ -f "VirtualBox-5.0.4-102546-OSX.dmg" ] || wget --content-disposition "http://download.virtualbox.org/virtualbox/5.0.4/VirtualBox-5.0.4-102546-OSX.dmg"
+[ -f "Caffeine1.1.1.zip" ] || wget --content-disposition "http://download.lightheadsw.com/download.php?software=caffeine"
+
+# Redis
+cd $SCRIPT_DIR/../bosh-lite/exercises
+[ -f "04-dataservice-marketplace/cf-redis-release-407.tgz" ] || wget -P 04-dataservice-marketplace --content-disposition https://bosh.io/d/github.com/pivotal-cf/cf-redis-release?v=407
+[ -f "06-upgrade-release/cf-redis-release-408.tgz" ] || wget -P 06-upgrade-release  --content-disposition https://bosh.io/d/github.com/pivotal-cf/cf-redis-release?v=408
+
+# Stemcell
+[ -f "07-updating-stemcells/bosh-stemcell-2776-warden-boshlite-ubuntu-trusty-go_agent.tgz" ] || wget -P 07-updating-stemcells --content-disposition https://s3.amazonaws.com/bosh-warden-stemcells/bosh-stemcell-2776-warden-boshlite-ubuntu-trusty-go_agent.tgz
+
+#Base vagrant box
+cd $SCRIPT_DIR/../bosh-lite/_setup
+[ -f "bosh-lite-with-cf-215.box" ] || wget --content-disposition https://s3.amazonaws.com/training-operating-the-platform/bosh-lite-with-cf-215.box
+
+)

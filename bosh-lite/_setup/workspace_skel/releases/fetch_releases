@@ -1,0 +1,31 @@
+#!/bin/bash
+
+(
+	if [ ! -d ~/releases/cf-redis-release ]; then
+	  echo "Cloning CloudCredo/cf-redis-release"
+	  git clone -b add-warden-templates --single-branch https://github.com/CloudCredo/cf-redis-release ~/releases/cf-redis-release
+	fi
+	cd ~/releases/cf-redis-release
+	git pull
+	git submodule update --init --recursive --force
+)
+
+(
+	if [ ! -d ~/releases/logsearch-boshrelease ]; then
+	  echo "Cloning logsearch/logsearch-boshrelease"
+	  git clone -b upgrade_to_elasticsearch_2 --single-branch https://github.com/logsearch/logsearch-boshrelease ~/releases/logsearch-boshrelease
+	fi
+	cd ~/releases/logsearch-boshrelease
+	git pull
+	git submodule update --init --recursive --force
+)
+
+(
+	if [ ! -d ~/releases/logsearch-for-cloudfoundry ]; then
+	  echo "Cloning logsearch/logsearch-for-cloudfoundry"
+	  git clone -b upgrade_for_elasticsearch2 --single-branch https://github.com/logsearch/logsearch-for-cloudfoundry ~/releases/logsearch-for-cloudfoundry
+	fi
+	cd ~/releases/logsearch-for-cloudfoundry
+	git pull
+	git submodule update --init --recursive --force
+)

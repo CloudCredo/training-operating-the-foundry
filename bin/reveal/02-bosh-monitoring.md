@@ -1,0 +1,1 @@
+../../bosh-lite/exercises/02-bosh-monitoring/README.md

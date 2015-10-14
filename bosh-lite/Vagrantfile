@@ -1,0 +1,59 @@
+require 'fileutils'
+
+VAGRANTFILE_API_VERSION = "2"
+Vagrant.require_version ">= 1.6.5"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  #Ubuntu 14.04 VM with BOSH lite installed
+  #config.vm.box = 'cloudfoundry/bosh-lite'
+  #config.vm.box_version = '9000.47.0'
+  
+  #Pre-Provisioned bosh-lite-with-cf-215 box (created from 'cloudfoundry/bosh-lite' via 'vagrant package', see above)
+  config.vm.box = '_setup/bosh-lite-with-cf-215.box'
+  
+  config.vm.hostname = 'bosh-training'
+
+  config.vm.provider :virtualbox do |v, override| 
+    config.vm.synced_folder ".", "/vagrant", mount_options: ["dmode=777"] # ensure any VM user can create files in subfolders - eg, /vagrant/tmp
+    override.vm.network "private_network", ip: "192.168.50.4"
+   
+    #Enable NFS folder sharing if on Mac
+    if RUBY_PLATFORM =~ /.*darwin.*/ 
+      override.vm.synced_folder "exercises", "/home/vagrant/exercises", type: "nfs"
+    end
+    #Enable folder sharing if on Windows
+    if RUBY_PLATFORM =~ /.*mswin|windows|mingw|cygwin.*/
+      # enable symlinks http://stackoverflow.com/questions/24200333/symbolic-links-and-synced-folders-in-vagrant
+      v.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root", "1"]
+      override.vm.synced_folder "exercises", "/home/vagrant/exercises", mount_options: ["dmode=777"]
+    end
+
+  end
+
+  #Forward local Environment variables into the vagrant VM
+  config.vm.provision "shell", run: "always", inline: <<EOF
+    echo "export GIT_AUTHOR_EMAIL='#{`git config --global user.email`.chomp}'
+export GIT_AUTHOR_NAME='#{`git config --global user.name`.chomp}'" > /home/vagrant/.env
+EOF
+  
+  #Ensure the vagrant VM has all the dependancies installed
+  config.vm.provision "shell", inline: "/vagrant/_setup/install_dependancies"
+
+  #Configure a workspace for the vagrant user
+  config.vm.provision "shell", inline: <<EOF
+/vagrant/_setup/add_new_workspace \
+  --workspace-homedirs /home \
+  --workspace-username vagrant \
+  --workspace-public-key '' \
+  --workspace-local-ip '192.168.50.4'
+EOF
+
+  #Yay!
+  config.vm.provision "shell", inline: <<EOF
+echo "=-=-=-=-=-=-=-=-=-=-=-=-=-="
+echo "   BOSH-lite cloud ready"
+echo "=-=-=-=-=-=-=-=-=-=-=-=-=-="
+EOF
+
+end

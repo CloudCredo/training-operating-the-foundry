@@ -1,0 +1,70 @@
+--- lib/cli/changeset_helper.rb	2014-12-29 16:41:06.676020900 +0000
++++ lib/cli/changeset_helper.rb	2014-12-29 16:49:42.057556638 +0000
+@@ -1,4 +1,8 @@
+ # encoding: UTF-8
++require 'diff-lcs'
++require 'diff/lcs'
++require 'diff/lcs/string'
++require 'diff/lcs/hunk'
+ 
+ module Bosh::Cli
+   class HashChangeset
+@@ -81,6 +85,10 @@
+     end
+ 
+     def diff(old_value, new_value, indent)
++      if are_long_strings(old_value, new_value)
++        return diff_large_strings(old_value, new_value, indent) 
++      end
++ 
+       old_value  = [old_value] unless old_value.kind_of?(Array)
+       new_value  = [new_value] unless new_value.kind_of?(Array)
+ 
+@@ -104,6 +112,47 @@
+       lines.join("\n")
+     end
+ 
++    def are_long_strings(old_value, new_value)
++      if old_value.kind_of?(String) and new_value.kind_of?(String)
++        if old_value.length > 80 || new_value.length > 80 
++          return true
++        end
++      end
++      return false
++    end
++
++    def diff_large_strings(old_value, new_value, indent)
++      
++      old_value = old_value.split($/).map { |e| e.chomp }
++      new_value = new_value.split($/).map { |e| e.chomp }
++
++      diffs = Diff::LCS.diff(old_value, new_value)
++      # Loop over hunks. If a hunk overlaps with the last hunk, join them.
++      # Otherwise, print out the old one.
++      oldhunk = hunk = nil
++      file_length_difference = 0
++      @lines = 0
++      output = ""
++
++      diffs.each do |piece|
++        begin
++          hunk = Diff::LCS::Hunk.new(old_value, new_value, piece, @lines,
++                                     file_length_difference)
++          file_length_difference = hunk.file_length_difference
++
++          next unless oldhunk
++          next if (@lines > 0) and hunk.merge(oldhunk)
++
++          output << oldhunk.diff(:unified) << "\n"
++        ensure
++          oldhunk = hunk
++        end
++      end
++
++      output << oldhunk.diff(:unified) << "\n"
++      output
++    end
++
+     def old
+       @values[:old]
+     end

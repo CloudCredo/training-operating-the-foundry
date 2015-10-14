@@ -1,0 +1,15 @@
+#!/bin/bash
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+find . -name ".DS_Store" -exec rm {} \;
+
+(
+
+cd $SCRIPT_DIR/../bosh-lite
+
+rm exercises/05-scaling-cf/cf-deployment.yml
+rm exercises/06-upgrade-release/cf-redis-deployment.yml
+rm exercises/07-updating-stemcells/cf-redis-deployment.yml
+rm exercises/08-monitoring/logsearch-deployment.yml
+
+)

@@ -1,0 +1,71 @@
+#!/usr/bin/env ruby
+abort "ERROR: add_new_workspace must be run as root user" unless `id -u`.to_i == 0
+SCRIPT_DIR=File.expand_path(File.dirname(__FILE__))
+require 'optparse'
+
+options = {}
+opts = OptionParser.new do |opts|
+  opts.banner = "Usage: add_new_workspace [options] "
+
+  opts.on("--workspace-homedirs FOLDER", "Base location for workspace folders, eg /workspaces - REQUIRED") do |folder|
+    options[:workspace_homedirs] = folder
+  end
+
+  opts.on("--workspace-username USERNAME", "workspace user, eg janesmith - REQUIRED") do |username|
+    options[:username] = username
+  end
+
+  opts.on("--workspace-public-key PUBLIC_KEY", "Public key for user - REQUIRED") do |public_key|
+    options[:public_key] = public_key
+  end
+
+  opts.on("--workspace-local-ip LOCAL_IP", "local ip of workspace - REQUIRED if not on AWS") do |local_ip|
+  	#Assume AWS ip
+    options[:local_ip] = local_ip
+  end
+
+  opts.on("--workspace-tenant-number NUMBER", "Used to segregate internal container IPs & port mappings. Valid values: [0 - 200]") do |tenant_number|
+    options[:tenant_number] = tenant_number.to_i
+  end
+
+end
+opts.parse!
+abort(opts.to_s) if options[:workspace_homedirs].nil?
+abort(opts.to_s) if options[:username].nil?
+abort(opts.to_s) if options[:public_key].nil?
+options[:tenant_number] = 0 if options[:tenant_number].nil?
+options[:local_ip] = `curl -s http://169.254.169.254/latest/meta-data/local-ipv4` if options[:local_ip].nil?
+abort(opts.to_s) if options[:local_ip] == ""
+options[:home_dir] = File.join(options[:workspace_homedirs], options[:username])
+
+puts options
+
+if `id -u #{options[:username]} 2>&1` =~ /.*no such user.*/ then
+ `adduser --home #{options[:home_dir]} --disabled-password --gecos "" #{options[:username]}`
+end
+`rsync -rtv #{SCRIPT_DIR}/workspace_skel/ #{options[:home_dir]}/`
+
+`if ! (grep '#{options[:public_key]}' #{options[:home_dir]}/.ssh/authorized_keys 1>/dev/null 2>&1) ; then echo "#{options[:public_key]}" >> #{options[:home_dir]}/.ssh/authorized_keys; fi`
+
+`chown -R #{options[:username]}:#{options[:username]} #{options[:home_dir]} 2>&1 > /dev/null`
+
+def expose_container(local_ip, local_port, container_ip, container_port, options) 
+  rule = "PREROUTING -p tcp -d #{local_ip} --dport #{local_port} -j DNAT --to #{container_ip}:#{container_port}"
+  added = ""
+  if `iptables -t nat -C #{rule} 2>&1`.to_s != "" then
+    added = "Adding "
+    `iptables -t nat -A #{rule}`
+    `iptables-save > /etc/iptables/rules.v4`
+  end
+  puts "#{added}TCP port mapping: #{local_ip}:#{local_port} -> #{container_ip}:#{container_port}"
+  `echo '    #{local_ip}:#{local_port} -> #{container_ip}:#{container_port}' >> #{options[:home_dir]}/port_mappings.txt`
+end
+
+`echo 'export LOCAL_IP="#{options[:local_ip]}"' >> #{options[:home_dir]}/.bash_profile`
+`echo 'export TENANT_NUMBER=#{options[:tenant_number]}' >> #{options[:home_dir]}/.bash_profile`
+
+`chmod +x #{options[:home_dir]}/bin/*`
+
+puts "===> Workspace for #{options[:username]} created!"
+
+

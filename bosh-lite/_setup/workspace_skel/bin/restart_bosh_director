@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+echo "Restarting BOSH director...  Hit Ctrl-C when all processes shown as 'running'"
+sudo /var/vcap/bosh/bin/monit restart all
+watch sudo /var/vcap/bosh/bin/monit summary

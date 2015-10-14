@@ -1,0 +1,51 @@
+---
+resource_pools:
+- name: redis_z1
+  stemcell:
+    name: bosh-warden-boshlite-ubuntu-trusty-go_agent
+    version: 389
+
+releases:
+  - name: cf-redis
+    version: 408
+
+meta:
+  environment: cf
+  external_domain: 10.244.0.34.xip.io
+  apps_domain: 10.244.0.34.xip.io
+  nats:
+    host: 10.244.0.6
+    port: 4222
+    username: nats
+    password: nats
+  syslog_aggregator:
+    address: 127.0.0.1
+    port: 1234
+
+director_uuid: <%= `bundle exec bosh status --uuid` %>
+
+properties:
+  redis:
+    broker:
+      enable_service_access: true
+      service_name: redis
+      backups: #Leave this section empty if you don't require backups.
+        access_key_id: YOUR_S3_ACCESS_KEY_ID
+        secret_access_key: YOUR_S3_SECRET_ACCESS_KEY 
+        endpoint_url: S3_ENDPOINT_FOR_YOUR_REGION
+        bucket_name: YOUR_S3_BUCKET
+        path: YOUR_S3_BACKUP_PATH
+  cf:
+    admin_username: admin
+    api_url: http://api.10.244.0.34.xip.io
+    admin_password: admin
+
+jobs:
+- name: cf-redis-broker
+  properties:
+    broker:
+      username: admin
+      password: admin
+
+
+

@@ -1,4 +1,4 @@
-## [ 06 - updating-stemcells ](#/1)
+## [ 07 - updating-stemcells ](#/1)
 
 ```nohighlight
 As a CF operator

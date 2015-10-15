@@ -21,7 +21,7 @@ This training is targeted at people with little to no Cloud Foundry BOSH experie
 ## Presentation
 
 * in PDF form at `presentation-slides.pdf`
-* run `bin/reveal_presentation` for browser version
+* run `bin/launch_presentation` for browser version
 
 ### reveal.js shortcuts
 

@@ -36,3 +36,6 @@
 *.gif binary
 *.ico binary
 *.svg text
+
+#Gems
+*.gem binary

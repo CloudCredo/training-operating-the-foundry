@@ -1,4 +1,4 @@
-## [ 01 - Deploy ](#/1)
+## [ 01 - Deploy ](#)
 
 ```nohighlight
 As a CF operator
@@ -14,7 +14,7 @@ This content is copyright of CloudCredo.<br>
 ---
 
 
-## [ Cloud on your laptop ](#/1)
+## [ Cloud on your laptop ](#)
 
 * Simulate a cloud on your laptop with BOSH-lite
 * cp `<USB>/operating-the-foundry` to your PC
@@ -24,8 +24,9 @@ cd path/to/operating-the-foundry/bosh-lite
 vagrant up
 ```
 
-* Adjust your power settings to prevent your machine going to sleep
-  * `_installs/Cafeine1.1.1.zip`
+* Prevent your machine going to sleep<br>
+<small>`_installs/Cafeine1.1.1.zip`</small>
+
 * Wait until ...
 
 ```bash
@@ -43,7 +44,7 @@ Note:
 
 ---
 
-## [ What is a cloud? ](#/2)
+## [ What is a cloud? ](#)
 
 * Technical:
   * Virtual infrastructure
@@ -58,7 +59,7 @@ Note:
 
 ---
 
-## [ What is BOSH? ](#/3)
+## [ What is BOSH? ](#)
 
 * BOSH is a cloud orchestration engine 
 * BOSH CPI - Cloud Provider Interface
@@ -68,7 +69,7 @@ Note:
 
 ---
 
-## [ What is BOSH-lite? ](#/4)
+## [ What is BOSH-lite? ](#)
 
 * VM with BOSH director installed 
 * Custom "container" CPI
@@ -78,7 +79,7 @@ Note:
 
 ---
 
-## [ BOSH philosophy ](#/5)
+## [ BOSH philosophy ](#)
 
 * Works at cluster level
 * Self contained
@@ -107,7 +108,7 @@ vagrant up
 
 ---
 
-## [Deploy CF to that cloud](#/6)
+## [Deploy CF to that cloud](#)
 
 * Deploy CF to that cloud
 
@@ -126,7 +127,7 @@ deploy_cf
 
 ---
 
-## [ BOSH concepts - Overview](#/7)
+## [ BOSH concepts - Overview](#)
 
 * Stemcell.tgz - a mimimal VM image running the BOSH agent
 * Release.tgz - a versioned tarball containing ALL the assets that will be deployed
@@ -137,7 +138,7 @@ deploy_cf
 
 ---
 
-## [ BOSH concepts - Stemcell ](#/8)
+## [ BOSH concepts - Stemcell ](#)
 
 * Download for your cloud type from bosh.io/stemcells
 * Minimalist Ubuntu/CentOS + BOSH agent
@@ -153,7 +154,7 @@ bosh stemcells
 
 ---
 
-## [ BOSH concepts - Releases ](#/9)
+## [ BOSH concepts - Releases ](#)
 
 * Download from bosh.io/releases
 * Tarball contains everything to be deployed; 
@@ -170,7 +171,7 @@ bosh releases
 
 ---
 
-## [ BOSH concepts - Manifest ](#/10)
+## [ BOSH concepts - Manifest ](#)
 
 * Cluster configuration
   * stemcell and release(s) versions 
@@ -193,7 +194,7 @@ bosh releases
 
 ---
 
-## [ BOSH concepts - Deployments ](#/11)
+## [ BOSH concepts - Deployments ](#)
 
 * Manifest + Release(s) + Stemcell => Deployment
 
@@ -209,11 +210,11 @@ bosh vms
 
 ---
 
-## [ Community ](#/11)
+## [ Community ](#)
 
-* www.cloudfoundry.org - participate!
-  * Mailing lists - lists.cloudfoundry.org
-  * Repositories - github.com/cloudfoundry, github.com/cloudfoundry-incubator
+* [www.cloudfoundry.org](https://www.cloudfoundry.org) - you can participate
+  * Mailing lists - [lists.cloudfoundry.org](https://lists.cloudfoundry.org)
+  * Repositories - [github.com/cloudfoundry](https://github.com/cloudfoundry), [github.com/cloudfoundry-incubator](https://github.com/cloudfoundry-incubator)
 
 ---
 
@@ -227,15 +228,22 @@ So that my users can self-serve their app deployment
 
 ---
 
-## [ Further reading ](#/12)
+## [ Further reading ](#)
 
 * Preparing a "real" cloud for BOSH
   * http://bosh.io/docs/init.html 
 * bosh-init - deploy BOSH director to manage a "real" cloud
   * http://bosh.io/docs/using-bosh-init.html
-* `bosh help`
-  * `bosh task recent`, `bosh tasks` & `bosh task <id> --debug`
-  * `bosh recreate job`
+* Try these commands
+
+```bash
+bosh help
+bosh task recent
+bosh task recent --no-filter
+bosh tasks
+bosh task <id> --debug
+bosh recreate job
+```
 
 ---
 

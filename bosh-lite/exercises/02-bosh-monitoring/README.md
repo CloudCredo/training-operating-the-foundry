@@ -1,4 +1,4 @@
-## [ 02 - BOSH monitoring ](#/1)
+## [ 02 - BOSH monitoring ](#)
 
 ```nohighlight
 As a CF operator
@@ -13,7 +13,7 @@ This content is copyright of CloudCredo.<br>
 
 ---
 
-## [ What is a CF cluster? ](#/1)
+## [ What is a CF cluster? ](#)
 
 * Container orchestration for 12 factor apps / microservices
 * Routing, scaling, health, audit, config, service bindings
@@ -27,7 +27,7 @@ bosh vms
 
 ---
 
-## [ BOSH ssh ](#/2)
+## [ BOSH ssh ](#)
 
 * SSH into doppler_z1/0 (choose temp sudo password)
 
@@ -41,16 +41,15 @@ bosh ssh --strict_host_key_checking no
 ```bash
 /var/vcap
  ├── bosh
- ├── bosh_ssh
  ├── data
  ├── jobs              <-- config
- ├── micro
- ├── micro_bosh
- ├── monit
  ├── packages          <-- binaries
+ ├── store             <-- persistant disk
  └── sys 
-        └── log          <-- logs!
-
+        └── log        <-- logs
+```
+```
+find /var/vcap -type d -maxdepth 3
 tail --lines=1 -f /var/vcap/sys/log/*/*
 ```
 
@@ -61,7 +60,7 @@ Note:
 
 ---
 
-## [ Monit ](#/2)
+## [ Monit ](#)
 
 * Processes are run with Monit
 
@@ -88,18 +87,13 @@ kill -9 $(cat /var/vcap/sys/run/doppler/doppler.pid)
 
 ---
 
-## [ BOSH Health Monitor ](#/2)
-
-* Original terminal
-
-```bash
-bosh vms
-```
+## [ BOSH Health Monitor ](#)
 
 * BOSH agent sends heartbeats back to BOSH director
 
 ```bash
-cd ~/exercises/02-cf-overview
+#in terminal 1
+cd ~/exercises/02-bosh-monitoring
 ./kill-VM
 bosh vms
 ```
@@ -108,6 +102,7 @@ bosh vms
 
 ```bash
 bosh cloudcheck
+bosh vms
 ```
 
 ---
@@ -127,6 +122,7 @@ So that I can troubleshoot problems
 * BOSH Health Monitor plugins
   * BOSH can forward status data to external monitoring systems
   * http://bosh.io/docs/hm-config.html
+* [4 levels of HA in Cloud Foundry](http://blog.pivotal.io/pivotal-cloud-foundry/products/the-four-levels-of-ha-in-pivotal-cf)
 
 ---
 

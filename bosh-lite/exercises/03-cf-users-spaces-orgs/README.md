@@ -20,7 +20,6 @@ This content is copyright of CloudCredo.<br>
    * Quotas
 * Spaces
    * Domains
-   * Spaces
    * Security Groups
    * Services
    * Apps

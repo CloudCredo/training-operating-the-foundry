@@ -21,7 +21,6 @@ This content is copyright of CloudCredo.<br>
    * Domains (`example.com`)
 * Spaces
    * Fully Qualified Domain Names (`myapp.example.com`)
-   * Spaces
    * Security Groups
    * Services
    * Apps

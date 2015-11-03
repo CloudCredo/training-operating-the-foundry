@@ -18,8 +18,9 @@ This content is copyright of CloudCredo.<br>
 
 * Organisations 
    * Quotas
+   * Domains (`example.com`)
 * Spaces
-   * Domains
+   * Fully Qualified Domain Names (`myapp.example.com`)
    * Spaces
    * Security Groups
    * Services
